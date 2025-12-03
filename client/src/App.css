@@ -1,0 +1,63 @@
+.App {
+  height: 100vh;
+  overflow: hidden;
+  background: var(--bg-secondary);
+}
+
+.loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  font-size: 1rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+.key-error-banner {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--bg-primary);
+  border: 1px solid var(--border-primary);
+  border-radius: 12px;
+  padding: 24px;
+  max-width: 500px;
+  z-index: 9999;
+  box-shadow: var(--shadow-lg);
+}
+
+.key-error-banner strong {
+  display: block;
+  color: var(--text-primary);
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 12px;
+}
+
+.key-error-banner p {
+  color: var(--text-secondary);
+  margin: 8px 0;
+  line-height: 1.6;
+  font-size: 14px;
+}
+
+.key-error-banner button {
+  margin-top: 16px;
+  padding: 10px 18px;
+  background: var(--accent);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-weight: 500;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.key-error-banner button:hover {
+  background: var(--accent-hover);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-sm);
+}
