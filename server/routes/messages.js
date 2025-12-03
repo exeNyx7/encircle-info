@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const Message = require('../models/Message');
 const { authenticate } = require('../middleware/auth');
+const { logSecurityEvent, EVENT_TYPES, getIpAddress } = require('../utils/securityLogger');
 
 // Send message (store encrypted)
 router.post('/', authenticate, async (req, res) => {
@@ -25,6 +26,14 @@ router.post('/', authenticate, async (req, res) => {
     });
     
     await message.save();
+    
+    // Log message sent
+    await logSecurityEvent(EVENT_TYPES.MESSAGE_SENT, {
+      userId: req.userId,
+      ipAddress: getIpAddress(req),
+      details: `Message sent to ${recipientId}`,
+      metadata: { messageId: message._id.toString(), recipientId }
+    });
     
     res.status(201).json({
       messageId: message._id,

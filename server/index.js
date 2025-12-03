@@ -8,6 +8,7 @@ const { Server } = require('socket.io');
 const authRoutes = require('./routes/auth');
 const userRoutes = require('./routes/users');
 const messageRoutes = require('./routes/messages');
+const securityRoutes = require('./routes/security');
 const { apiLimiter, authLimiter, messageLimiter, uploadLimiter } = require('./middleware/rateLimiter');
 
 const app = express();
@@ -42,6 +43,7 @@ const fileRoutes = require('./routes/files');
 app.use('/api/auth', authLimiter, authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/messages', messageLimiter, messageRoutes);
+app.use('/api/security', securityRoutes);
 
 // Socket.io for real-time messaging
 io.on('connection', (socket) => {
