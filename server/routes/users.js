@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const User = require('../models/User');
 const { authenticate } = require('../middleware/auth');
+const { logSecurityEvent, EVENT_TYPES, getIpAddress } = require('../utils/securityLogger');
 
 // Get all users (for contact list)
 router.get('/', authenticate, async (req, res) => {
@@ -29,6 +30,14 @@ router.get('/:userId/public-key', authenticate, async (req, res) => {
     if (!user) {
       return res.status(404).json({ error: 'User not found' });
     }
+    
+    // Log public key access
+    await logSecurityEvent(EVENT_TYPES.PUBLIC_KEY_ACCESS, {
+      userId: req.userId,
+      ipAddress: getIpAddress(req),
+      details: `Public key accessed for user ${userId}`,
+      metadata: { targetUserId: userId }
+    });
     
     res.json({
       userId: user._id,

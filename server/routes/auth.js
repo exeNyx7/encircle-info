@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const User = require('../models/User');
 const { createSession } = require('../middleware/auth');
+const { logSecurityEvent, EVENT_TYPES, getIpAddress } = require('../utils/securityLogger');
 
 // Register new user
 router.post('/register', async (req, res) => {
@@ -29,6 +30,13 @@ router.post('/register', async (req, res) => {
     
     await user.save();
     
+    // Log successful registration
+    await logSecurityEvent(EVENT_TYPES.REGISTRATION_SUCCESS, {
+      userId: user._id.toString(),
+      ipAddress: getIpAddress(req),
+      details: `User ${username} registered successfully`
+    });
+    
     // Create session
     const token = createSession(user._id.toString());
     
@@ -40,6 +48,14 @@ router.post('/register', async (req, res) => {
     });
   } catch (error) {
     console.error('Registration error:', error.message || 'Unknown error');
+    
+    // Log registration failure
+    await logSecurityEvent(EVENT_TYPES.REGISTRATION_FAILURE, {
+      userId: 'N/A',
+      ipAddress: getIpAddress(req),
+      details: `Registration failed: ${error.message}`
+    });
+    
     res.status(500).json({ error: 'Registration failed' });
   }
 });
@@ -64,6 +80,13 @@ router.post('/login', async (req, res) => {
     if (!isValid) {
       return res.status(401).json({ error: 'Invalid credentials' });
     }
+    
+    // Log successful login
+    await logSecurityEvent(EVENT_TYPES.AUTH_SUCCESS, {
+      userId: user._id.toString(),
+      ipAddress: getIpAddress(req),
+      details: `User ${username} logged in successfully`
+    });
     
     // Create session
     const token = createSession(user._id.toString());
