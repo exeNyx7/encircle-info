@@ -33,7 +33,9 @@ function Login({ onLoginSuccess, onSwitchToRegister }) {
 
   return (
     <div className="auth-box">
-      <h2>Login</h2>
+      <div className="brand-logo">🔒</div>
+      <h2>Encircle</h2>
+      <p className="subtitle">Secure end-to-end encrypted messaging</p>
       <form onSubmit={handleSubmit}>
         <div className="form-group">
           <label>Username</label>

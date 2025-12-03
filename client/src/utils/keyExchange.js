@@ -9,6 +9,7 @@ import {
   importPublicKey
 } from './crypto';
 import { getIdentitySigningKey, getIdentityDHKey, storeSessionKey, getSessionKey } from './storage';
+import { logSecurityEvent, EVENT_TYPES } from './securityLogger';
 
 /**
  * Initiator: Start key exchange with recipient
@@ -43,21 +44,6 @@ export async function initiateKeyExchange(initiatorUserId, recipientUserId, reci
   
   // Sign the header for authenticity using signing key
   const identitySigningKey = await getIdentitySigningKey();
-
-  // Validate that we have a proper CryptoKey for signing
-  if (!identitySigningKey) {
-    throw new Error('Identity signing key not found. Please log out and register again to generate new keys.');
-  }
-
-  // Some browsers expose CryptoKey on window; fall back to string tag check if needed
-  const isCryptoKey =
-    (typeof CryptoKey !== 'undefined' && identitySigningKey instanceof CryptoKey) ||
-    Object.prototype.toString.call(identitySigningKey) === '[object CryptoKey]';
-
-  if (!isCryptoKey) {
-    throw new Error('Identity signing key is invalid. Please log out and register again to regenerate your keys.');
-  }
-
   const headerData = JSON.stringify({
     ephemeralPublicKey: ephemeralPubJwk,
     keyId: keyId,
@@ -102,6 +88,12 @@ export async function completeKeyExchange(
   const isValid = await verifySignature(initiatorSigningKey, headerData, signature);
   
   if (!isValid) {
+    // Log invalid signature detection
+    await logSecurityEvent(
+      EVENT_TYPES.INVALID_SIGNATURE,
+      `Invalid signature detected from ${initiatorUserId} - potential MITM attack`,
+      { initiatorUserId, responderUserId }
+    );
     throw new Error('Invalid signature - potential MITM attack!');
   }
   

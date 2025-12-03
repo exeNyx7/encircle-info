@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import Register from './components/Register';
 import Login from './components/Login';
 import Chat from './components/Chat';
+import SecurityLogs from './components/SecurityLogs';
 import { hasIdentityKeys, validateIdentityKeys, clearAllKeys } from './utils/storage';
 import { getAuthToken, clearAuthToken } from './utils/api';
 import './App.css';
@@ -101,6 +102,14 @@ function App() {
         <Chat 
           currentUser={currentUser}
           onLogout={handleLogout}
+          onViewSecurityLogs={() => setView('security')}
+        />
+      )}
+      
+      {view === 'security' && currentUser && (
+        <SecurityLogs 
+          onBack={() => setView('chat')}
+          onSessionExpired={handleLogout}
         />
       )}
     </div>

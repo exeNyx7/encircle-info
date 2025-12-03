@@ -1,58 +1,70 @@
 .file-upload-container {
-  margin: 15px 0;
-  padding: 15px;
-  background: #f8f9fa;
-  border-radius: 8px;
+  margin: 16px 24px;
+  padding: 20px;
+  background: var(--bg-tertiary);
+  border-radius: 12px;
+  border: 1px solid var(--border-primary);
 }
 
 .file-drop-zone {
-  border: 2px dashed #cbd5e0;
-  border-radius: 8px;
-  padding: 30px;
+  border: 2px dashed var(--border-secondary);
+  border-radius: 12px;
+  padding: 40px;
   text-align: center;
-  background: white;
+  background: var(--bg-primary);
   transition: all 0.3s ease;
   cursor: pointer;
 }
 
 .file-drop-zone.active {
-  border-color: #667eea;
-  background: #f0f4ff;
+  border-color: var(--accent);
+  background: var(--bg-hover);
+  transform: scale(1.01);
 }
 
 .drop-icon {
-  font-size: 48px;
-  margin-bottom: 10px;
+  font-size: 56px;
+  margin-bottom: 12px;
+  opacity: 0.6;
 }
 
 .file-drop-zone p {
-  margin: 10px 0;
-  color: #718096;
+  margin: 12px 0;
+  color: var(--text-secondary);
+  font-size: 14px;
+  line-height: 1.5;
 }
 
 .file-select-btn {
   display: inline-block;
   padding: 10px 20px;
-  background: #667eea;
+  background: var(--accent);
   color: white;
-  border-radius: 6px;
+  border-radius: 8px;
   cursor: pointer;
-  transition: background 0.2s;
+  font-weight: 600;
+  font-size: 14px;
+  transition: all 0.2s;
 }
 
 .file-select-btn:hover {
-  background: #5568d3;
+  background: var(--accent-hover);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-sm);
 }
 
 .file-selected {
   display: flex;
   align-items: center;
-  gap: 15px;
-  padding: 15px;
+  gap: 16px;
+  padding: 16px;
+  background: var(--bg-primary);
+  border-radius: 10px;
+  border: 1px solid var(--border-primary);
 }
 
 .file-icon {
-  font-size: 40px;
+  font-size: 44px;
 }
 
 .file-info {
@@ -62,92 +74,104 @@
 
 .file-name {
   font-weight: 600;
-  color: #2d3748;
-  margin-bottom: 5px;
+  font-size: 15px;
+  color: var(--text-primary);
+  margin-bottom: 6px;
 }
 
 .file-size {
-  font-size: 14px;
-  color: #718096;
+  font-size: 13px;
+  color: var(--text-tertiary);
 }
 
 .remove-file-btn {
-  background: #fc8181;
-  color: white;
-  border: none;
+  background: var(--bg-hover);
+  color: var(--text-secondary);
+  border: 1px solid var(--border-primary);
   border-radius: 50%;
-  width: 30px;
-  height: 30px;
+  width: 32px;
+  height: 32px;
   cursor: pointer;
   font-size: 16px;
-  transition: background 0.2s;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .remove-file-btn:hover {
-  background: #f56565;
+  background: var(--bg-active);
+  color: var(--text-primary);
+  transform: scale(1.05);
 }
 
 .upload-btn {
   width: 100%;
   padding: 12px;
-  margin-top: 10px;
-  background: #48bb78;
+  margin-top: 12px;
+  background: var(--accent);
   color: white;
   border: none;
-  border-radius: 6px;
-  font-size: 16px;
+  border-radius: 8px;
+  font-size: 15px;
   font-weight: 600;
   cursor: pointer;
-  transition: background 0.2s;
+  transition: all 0.2s;
 }
 
 .upload-btn:hover {
-  background: #38a169;
+  background: var(--accent-hover);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-sm);
 }
 
 .upload-btn:disabled {
-  background: #cbd5e0;
+  background: var(--bg-active);
+  color: var(--text-disabled);
   cursor: not-allowed;
+  transform: none;
 }
 
 .upload-progress {
-  margin-top: 15px;
+  margin-top: 16px;
 }
 
 .progress-bar {
   width: 100%;
-  height: 8px;
-  background: #e2e8f0;
-  border-radius: 4px;
+  height: 6px;
+  background: var(--bg-active);
+  border-radius: 3px;
   overflow: hidden;
 }
 
 .progress-fill {
   height: 100%;
-  background: linear-gradient(90deg, #667eea, #764ba2);
+  background: var(--accent);
   transition: width 0.3s ease;
 }
 
 .progress-text {
   text-align: center;
-  margin-top: 8px;
-  font-size: 14px;
-  color: #4a5568;
+  margin-top: 10px;
+  font-size: 13px;
+  color: var(--text-secondary);
   font-weight: 600;
 }
 
 .upload-error {
-  margin-top: 10px;
-  padding: 10px;
-  background: #fed7d7;
-  color: #c53030;
-  border-radius: 6px;
-  font-size: 14px;
+  margin-top: 12px;
+  padding: 12px 14px;
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+  border: 1px solid var(--border-primary);
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 500;
 }
 
 .upload-warning {
-  margin-top: 10px;
-  padding: 10px;
+  margin-top: 12px;
+  padding: 12px 14px;
   background: #feebc8;
   color: #c05621;
   border-radius: 6px;

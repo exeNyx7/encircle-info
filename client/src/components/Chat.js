@@ -10,12 +10,13 @@ import { getMessageKey } from '../utils/keyExchange';
 import { encryptMessage, decryptMessage, decryptFile } from '../utils/crypto';
 import { useKeyExchange } from '../hooks/useKeyExchange';
 import { clearAllKeys, getNextSequenceNumber, validateSequenceNumber } from '../utils/storage';
+import { logSecurityEvent, EVENT_TYPES } from '../utils/securityLogger';
 import FileUpload from './FileUpload';
 import './Chat.css';
 
 const SOCKET_URL = process.env.REACT_APP_SOCKET_URL || 'http://localhost:5000';
 
-function Chat({ currentUser, onLogout }) {
+function Chat({ currentUser, onLogout, onViewSecurityLogs }) {
   const [users, setUsers] = useState([]);
   const [selectedUser, setSelectedUser] = useState(null);
   const [messages, setMessages] = useState([]);
@@ -82,6 +83,12 @@ function Chat({ currentUser, onLogout }) {
               sessionKey = keyExchangeResult.sessionKey;
             } catch (keyExchangeErr) {
               console.error('Key exchange failed for message:', msg._id, keyExchangeErr);
+              // Log key exchange failure
+              await logSecurityEvent(
+                EVENT_TYPES.KEY_EXCHANGE_FAILURE,
+                `Key exchange failed with ${msg.senderId}`,
+                { messageId: msg._id, error: keyExchangeErr.message }
+              );
               return { ...msg, plaintext: '[Key exchange failed]', decrypted: false, error: keyExchangeErr.message };
             }
           }
@@ -93,6 +100,12 @@ function Chat({ currentUser, onLogout }) {
               return { ...msg, plaintext, decrypted: true };
             } catch (decryptErr) {
               console.error('Decryption failed for message:', msg._id, decryptErr);
+              // Log decryption failure
+              await logSecurityEvent(
+                EVENT_TYPES.DECRYPTION_FAILURE,
+                `Failed to decrypt message from ${msg.senderId}`,
+                { messageId: msg._id, error: decryptErr.message }
+              );
               return { ...msg, plaintext: '[Decryption failed]', decrypted: false, error: decryptErr.message };
             }
           }
@@ -118,6 +131,12 @@ function Chat({ currentUser, onLogout }) {
         const isValid = await validateSequenceNumber(data.senderId, data.sequenceNumber);
         if (!isValid) {
           console.error('Replay attack detected - ignoring message');
+          // Log replay attack detection
+          await logSecurityEvent(
+            EVENT_TYPES.REPLAY_ATTACK,
+            `Replay attack detected from ${data.senderId}`,
+            { sequenceNumber: data.sequenceNumber, keyId: data.keyId }
+          );
           setError('⚠️ Replay attack detected - message rejected');
           setTimeout(() => setError(''), 5000);
           return;
@@ -131,14 +150,31 @@ function Chat({ currentUser, onLogout }) {
       let sessionKey = await getMessageKey(data.keyId);
       
       if (!sessionKey && data.ephemeralPublicKey) {
-        const keyExchangeResult = await complete(
-          currentUser.userId,
-          data.senderId,
-          data.ephemeralPublicKey,
-          data.headerData,
-          data.signature
-        );
-        sessionKey = keyExchangeResult.sessionKey;
+        try {
+          const keyExchangeResult = await complete(
+            currentUser.userId,
+            data.senderId,
+            data.ephemeralPublicKey,
+            data.headerData,
+            data.signature
+          );
+          sessionKey = keyExchangeResult.sessionKey;
+          // Log successful key exchange
+          await logSecurityEvent(
+            EVENT_TYPES.KEY_EXCHANGE_SUCCESS,
+            `Key exchange completed with ${data.senderId}`,
+            { keyId: data.keyId }
+          );
+        } catch (keyExchangeErr) {
+          console.error('Key exchange failed:', keyExchangeErr);
+          // Log key exchange failure
+          await logSecurityEvent(
+            EVENT_TYPES.KEY_EXCHANGE_FAILURE,
+            `Key exchange failed with ${data.senderId}`,
+            { error: keyExchangeErr.message }
+          );
+          throw keyExchangeErr;
+        }
       }
       
       // Decrypt message
@@ -157,6 +193,12 @@ function Chat({ currentUser, onLogout }) {
       setMessages(prev => [...prev, decryptedMessage]);
     } catch (err) {
       console.error('Failed to decrypt message:', err);
+      // Log decryption failure
+      await logSecurityEvent(
+        EVENT_TYPES.DECRYPTION_FAILURE,
+        `Failed to decrypt incoming message from ${data.senderId}`,
+        { keyId: data.keyId, error: err.message }
+      );
       const failedMessage = {
         ...data,
         plaintext: '[Decryption failed]',
@@ -347,7 +389,14 @@ function Chat({ currentUser, onLogout }) {
       <div className="sidebar">
         <div className="sidebar-header">
           <h3>Encircle</h3>
-          <button onClick={handleLogout} className="logout-btn">Logout</button>
+          <div className="header-actions">
+            {onViewSecurityLogs && (
+              <button onClick={onViewSecurityLogs} className="security-btn" title="Security Logs">
+                🔒
+              </button>
+            )}
+            <button onClick={handleLogout} className="logout-btn">Logout</button>
+          </div>
         </div>
         
         <div className="user-info">
@@ -450,7 +499,7 @@ function Chat({ currentUser, onLogout }) {
           </>
         ) : (
           <div className="no-chat-selected">
-            <p>Select a contact to start chatting</p>
+            <p>Select a contact to start messaging</p>
           </div>
         )}
       </div>

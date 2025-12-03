@@ -17,7 +17,10 @@
   "eslintConfig": {
     "extends": [
       "react-app"
-    ]
+    ],
+    "globals": {
+      "BigInt": "readonly"
+    }
   },
   "browserslist": {
     "production": [

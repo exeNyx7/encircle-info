@@ -79,7 +79,9 @@ function Register({ onRegisterSuccess, onSwitchToLogin }) {
 
   return (
     <div className="auth-box">
-      <h2>Register</h2>
+      <div className="brand-logo">🔒</div>
+      <h2>Encircle</h2>
+      <p className="subtitle">Create your secure account</p>
       <form onSubmit={handleSubmit}>
         <div className="form-group">
           <label>Username</label>

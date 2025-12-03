@@ -187,12 +187,19 @@ export async function deriveSharedKey(privateKey, publicKey, context) {
 
 /**
  * Encrypt data with AES-256-GCM
+ * Includes timestamp in encrypted payload for replay protection
  */
 export async function encryptMessage(key, plaintext) {
-  const encoder = new TextEncoder();
-  const data = encoder.encode(plaintext);
+  // Create payload with timestamp for replay protection
+  const payload = JSON.stringify({
+    text: plaintext,
+    timestamp: Date.now()
+  });
   
-  // Generate random 96-bit IV
+  const encoder = new TextEncoder();
+  const data = encoder.encode(payload);
+  
+  // Generate fresh random 96-bit (12 bytes) IV for every message
   const iv = window.crypto.getRandomValues(new Uint8Array(12));
   
   const ciphertext = await window.crypto.subtle.encrypt(
@@ -213,8 +220,9 @@ export async function encryptMessage(key, plaintext) {
 
 /**
  * Decrypt data with AES-256-GCM
+ * Extracts and validates timestamp from encrypted payload
  */
-export async function decryptMessage(key, ciphertextBase64, ivBase64) {
+export async function decryptMessage(key, ciphertextBase64, ivBase64, options = {}) {
   const ciphertext = base64ToArrayBuffer(ciphertextBase64);
   const iv = base64ToArrayBuffer(ivBase64);
   
@@ -229,7 +237,38 @@ export async function decryptMessage(key, ciphertextBase64, ivBase64) {
   );
   
   const decoder = new TextDecoder();
-  return decoder.decode(plaintext);
+  const payloadStr = decoder.decode(plaintext);
+  
+  // Parse payload to extract text and timestamp
+  try {
+    const payload = JSON.parse(payloadStr);
+    
+    // Check if payload has expected structure
+    if (payload && typeof payload === 'object' && 'text' in payload && 'timestamp' in payload) {
+      // Validate timestamp for replay protection (default: 1 hour max age)
+      const maxAge = options.maxAge || 3600000; // 1 hour in milliseconds
+      const age = Date.now() - payload.timestamp;
+      
+      if (age > maxAge) {
+        throw new Error('Message timestamp too old - possible replay attack');
+      }
+      
+      if (age < -60000) { // Allow 1 minute clock skew
+        throw new Error('Message timestamp is in the future - possible replay attack');
+      }
+      
+      return payload.text;
+    }
+  } catch (e) {
+    // If parsing fails or structure is wrong, might be old format
+    // Try to return as-is for backward compatibility
+    if (e.message.includes('replay attack')) {
+      throw e; // Re-throw replay attack errors
+    }
+  }
+  
+  // Fallback for old messages without timestamp (backward compatibility)
+  return payloadStr;
 }
 
 /**
@@ -256,8 +295,9 @@ export async function encryptFileChunk(key, chunk) {
 
 /**
  * Decrypt file with AES-256-GCM
+ * Extracts and validates timestamp from encrypted payload
  */
-export async function decryptFile(key, ciphertextBase64, ivBase64) {
+export async function decryptFile(key, ciphertextBase64, ivBase64, options = {}) {
   const ciphertext = base64ToArrayBuffer(ciphertextBase64);
   const iv = base64ToArrayBuffer(ivBase64);
 
@@ -271,31 +311,76 @@ export async function decryptFile(key, ciphertextBase64, ivBase64) {
     ciphertext
   );
 
+  // Extract timestamp (first 8 bytes) and file data
+  const dataView = new DataView(plaintext);
+  
+  // Check if we have at least 8 bytes for timestamp
+  if (plaintext.byteLength >= 8) {
+    try {
+      const timestamp = Number(dataView.getBigUint64(0, false));
+      
+      // Validate timestamp for replay protection
+      const maxAge = options.maxAge || 3600000; // 1 hour
+      const age = Date.now() - timestamp;
+      
+      if (age > maxAge) {
+        throw new Error('File timestamp too old - possible replay attack');
+      }
+      
+      if (age < -60000) { // Allow 1 minute clock skew
+        throw new Error('File timestamp is in the future - possible replay attack');
+      }
+      
+      // Return file data without timestamp
+      return plaintext.slice(8);
+    } catch (e) {
+      if (e.message.includes('replay attack')) {
+        throw e;
+      }
+      // If timestamp parsing fails, might be old format
+    }
+  }
+  
+  // Fallback: return entire plaintext for backward compatibility
   return plaintext;
 }
 
 /**
  * Encrypt file with AES-256-GCM
+ * Simplified version: encrypts entire file with timestamp in single operation
  */
 export async function encryptFile(key, fileBuffer) {
-  const CHUNK_SIZE = 1024 * 1024; // 1MB chunks
-  const chunks = [];
+  // Create payload with file data and timestamp for replay protection
+  const fileArray = new Uint8Array(fileBuffer);
+  const timestamp = Date.now();
   
-  for (let offset = 0; offset < fileBuffer.byteLength; offset += CHUNK_SIZE) {
-    const chunk = fileBuffer.slice(offset, offset + CHUNK_SIZE);
-    const encrypted = await encryptFileChunk(key, chunk);
-    chunks.push(encrypted);
-  }
+  // Create a combined buffer: [timestamp (8 bytes)] + [file data]
+  const timestampBuffer = new ArrayBuffer(8);
+  const timestampView = new DataView(timestampBuffer);
+  timestampView.setBigUint64(0, BigInt(timestamp), false);
   
-  // For simplicity, concatenate all encrypted chunks
-  // In production, you might want to send chunks separately
-  const allCiphertext = chunks.map(c => c.ciphertext).join(',');
-  const allIvs = chunks.map(c => c.iv).join(',');
+  // Combine timestamp and file data
+  const combined = new Uint8Array(8 + fileArray.length);
+  combined.set(new Uint8Array(timestampBuffer), 0);
+  combined.set(fileArray, 8);
+  
+  // Generate fresh random IV
+  const iv = window.crypto.getRandomValues(new Uint8Array(12));
+  
+  const ciphertext = await window.crypto.subtle.encrypt(
+    {
+      name: 'AES-GCM',
+      iv: iv,
+      tagLength: 128
+    },
+    key,
+    combined.buffer
+  );
   
   return {
-    ciphertext: allCiphertext,
-    iv: allIvs,
-    chunks: chunks.length
+    ciphertext: arrayBufferToBase64(ciphertext),
+    iv: arrayBufferToBase64(iv),
+    chunks: 1
   };
 }
 
