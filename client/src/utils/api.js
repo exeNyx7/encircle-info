@@ -1,5 +1,7 @@
 // API client for backend communication
 const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+// const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8080/api'; // Pointing to MITM attacker for testing
+// const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8081/api'; // Pointing to replay attacker for testing
 
 let authToken = localStorage.getItem('authToken');
 

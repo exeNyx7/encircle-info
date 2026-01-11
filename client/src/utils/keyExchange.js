@@ -95,6 +95,7 @@ export async function completeKeyExchange(
       { initiatorUserId, responderUserId }
     );
     throw new Error('Invalid signature - potential MITM attack!');
+    console.warn("MITM Demo: Ignoring invalid signature to show vulnerability");
   }
   
   // Parse header
