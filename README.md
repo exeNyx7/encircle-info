@@ -23,6 +23,7 @@
 - [Tech Stack](#-tech-stack)
 - [Security Architecture](#-security-architecture)
 - [Installation](#-installation)
+- [🚀 Deployment (FREE)](#-deployment-free)
 - [Project Structure](#-project-structure)
 - [API Documentation](#-api-documentation)
 - [Security Testing](#-security-testing)
@@ -336,7 +337,37 @@ npm run build
 
 ---
 
-## 📁 Project Structure
+## � Deployment (FREE)
+
+Deploy Encircle completely **free** using modern cloud platforms! See our comprehensive [DEPLOYMENT.md](DEPLOYMENT.md) guide for detailed instructions.
+
+### Quick Deployment Overview
+
+| Component | Platform | Free Tier | Link |
+|-----------|----------|-----------|------|
+| **Frontend** | Vercel | ✅ Unlimited bandwidth | [Deploy Frontend](https://vercel.com) |
+| **Backend** | Render | ✅ 750 hours/month | [Deploy Backend](https://render.com) |
+| **Database** | MongoDB Atlas | ✅ 512MB storage | [Setup Database](https://cloud.mongodb.com) |
+
+### Deployment Steps (Summary)
+
+1. **MongoDB Atlas**: Create free cluster, get connection string
+2. **Render**: Deploy backend with environment variables
+3. **Vercel**: Deploy frontend with backend URL
+4. **Update CORS**: Add Vercel URL to backend allowed origins
+
+**📖 Full Guide**: [DEPLOYMENT.md](DEPLOYMENT.md) - Complete step-by-step instructions with screenshots and troubleshooting
+
+### Your App Will Be Live At:
+- **Frontend**: `https://your-app.vercel.app`
+- **Backend**: `https://your-backend.onrender.com`
+- **Database**: MongoDB Atlas cluster
+
+**Total Cost: $0/month** 💰
+
+---
+
+## �📁 Project Structure
 
 ```
 encircle-info/

@@ -13,15 +13,34 @@ const { apiLimiter, authLimiter, messageLimiter, uploadLimiter } = require('./mi
 
 const app = express();
 const server = http.createServer(app);
+
+// Configure CORS for production
+const allowedOrigins = process.env.NODE_ENV === 'production' 
+  ? ['https://your-frontend.vercel.app'] // Replace with your Vercel domain
+  : ['http://localhost:3000'];
+
 const io = new Server(server, {
   cors: {
-    origin: 'http://localhost:3000',
-    methods: ['GET', 'POST']
+    origin: allowedOrigins,
+    methods: ['GET', 'POST'],
+    credentials: true
   }
 });
 
 // Middleware
-app.use(cors());
+app.use(cors({
+  origin: function(origin, callback) {
+    // Allow requests with no origin (mobile apps, Postman, etc.)
+    if (!origin) return callback(null, true);
+    
+    if (allowedOrigins.indexOf(origin) !== -1 || process.env.NODE_ENV !== 'production') {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true
+}));
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
