@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { getSecurityStats, getSecurityLogs } from '../utils/securityLogger';
 import { 
   ShieldAlert, 
@@ -22,14 +22,7 @@ function SecurityLogs({ onBack, onSessionExpired }) {
   const [filter, setFilter] = useState('all');
   const [selectedLog, setSelectedLog] = useState(null);
 
-  useEffect(() => {
-    loadData();
-    // Refresh every 10 seconds
-    const interval = setInterval(loadData, 10000);
-    return () => clearInterval(interval);
-  }, [filter]);
-
-  async function loadData() {
+  const loadData = useCallback(async () => {
     try {
       const [statsData, logsData] = await Promise.all([
         getSecurityStats(),
@@ -58,7 +51,14 @@ function SecurityLogs({ onBack, onSessionExpired }) {
     } finally {
       setLoading(false);
     }
-  }
+  }, [filter, onSessionExpired]);
+
+  useEffect(() => {
+    loadData();
+    // Refresh every 10 seconds
+    const interval = setInterval(loadData, 10000);
+    return () => clearInterval(interval);
+  }, [loadData]);
 
   function formatTimestamp(timestamp) {
     return new Date(timestamp).toLocaleString('en-US', {

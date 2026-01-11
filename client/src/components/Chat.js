@@ -36,7 +36,6 @@ function Chat({ currentUser, onLogout, onViewSecurityLogs }) {
   const [newMessage, setNewMessage] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const [currentSessionKey, setCurrentSessionKey] = useState(null);
   const [showFileUpload, setShowFileUpload] = useState(false);
   const [downloadingFiles, setDownloadingFiles] = useState({});
   const [userSearchQuery, setUserSearchQuery] = useState('');
@@ -137,7 +136,7 @@ function Chat({ currentUser, onLogout, onViewSecurityLogs }) {
       console.error('Failed to load messages:', err);
       setError('Failed to load messages');
     }
-  }, [currentUser.userId]);
+  }, [currentUser.userId, complete]);
 
   const handleIncomingMessage = useCallback(async (data) => {
     try {
@@ -157,9 +156,6 @@ function Chat({ currentUser, onLogout, onViewSecurityLogs }) {
           return;
         }
       }
-      
-      // Get sender's public key
-      const senderData = await getUserPublicKey(data.senderId);
       
       // If we don't have the session key, complete key exchange
       let sessionKey = await getMessageKey(data.keyId);
@@ -222,7 +218,7 @@ function Chat({ currentUser, onLogout, onViewSecurityLogs }) {
       };
       setMessages(prev => [...prev, failedMessage]);
     }
-  }, [currentUser.userId]);
+  }, [currentUser.userId, complete]);
 
   const handleIncomingFile = useCallback(async (data) => {
     try {
@@ -343,9 +339,6 @@ function Chat({ currentUser, onLogout, onViewSecurityLogs }) {
         currentUser.userId,
         selectedUser._id
       );
-      
-      // Store session key for file uploads
-      setCurrentSessionKey(keyExchange.sessionKey);
       
       // Encrypt message
       const encrypted = await encryptMessage(keyExchange.sessionKey, newMessage);
