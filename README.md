@@ -10,6 +10,8 @@
 
 **A modern, secure messaging platform with military-grade end-to-end encryption, built with cutting-edge web technologies and Instagram-inspired UI/UX.**
 
+🌐 **[Live Demo](https://encircle-info.vercel.app/)** | 🔗 **[API](https://encircle-server.onrender.com/)**
+
 [Features](#-key-features) • [Tech Stack](#-tech-stack) • [Installation](#-installation) • [Security](#-security-architecture) • [Screenshots](#-screenshots)
 
 </div>

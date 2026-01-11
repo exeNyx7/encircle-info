@@ -16,7 +16,7 @@ const server = http.createServer(app);
 
 // Configure CORS for production
 const allowedOrigins = process.env.NODE_ENV === 'production' 
-  ? ['https://encircle-info.vercel.app/'] // Replace with your Vercel domain
+  ? ['https://encircle-info.vercel.app'] // Your Vercel domain
   : ['http://localhost:3000'];
 
 const io = new Server(server, {
