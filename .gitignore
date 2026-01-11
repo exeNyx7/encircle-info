@@ -24,3 +24,6 @@ Thumbs.db
 *.swo
 
 DEPLOYMENT.md
+
+client/.env.production
+client/.env
