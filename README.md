@@ -573,16 +573,19 @@ Verify that duplicate messages with the same sequence number are rejected.
 ## 📸 Screenshots
 
 ### Login Screen
-Modern authentication with Instagram-inspired gradient and card design.
+<img width="1918" height="911" alt="image" src="https://github.com/user-attachments/assets/04c242f8-d787-44cd-a872-fee320939580" />
+
 
 ### Chat Interface
-Two-column layout with glass-morphism sidebar and Instagram-style message bubbles.
+<img width="1919" height="913" alt="image" src="https://github.com/user-attachments/assets/c88887f2-d11c-4c6c-8b00-831f3be0155d" />
 
 ### Security Dashboard
-Comprehensive security monitoring with real-time statistics and event logs.
+<img width="1919" height="910" alt="image" src="https://github.com/user-attachments/assets/d5e99e6f-5a2a-436a-8373-73022c202427" />
 
 ### File Sharing
-Encrypted file uploads with progress indicators and secure downloads.
+<img width="1919" height="911" alt="image" src="https://github.com/user-attachments/assets/a4fc0952-533c-4f99-8741-f6017e15d156" />
+
+<img width="1872" height="947" alt="image" src="https://github.com/user-attachments/assets/d4c4a03a-936b-42ea-9ae0-7ed9d93a67ef" />
 
 ---
 
