@@ -647,7 +647,7 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 **Your Name**
 
-- GitHub: [@exeNyx7](https://github.com/exeNyx7)
+- GitHub: [@exeNyx7](https://github.com/exeNyx7) [@m-tayyab-naseem](https://github.com/m-tayyab-naseem) [@Areebanaeem123](https://github.com/Areebanaeem123)
 - LinkedIn: [Dawood Qamar](https://linkedin.com/in/https://www.linkedin.com/in/dawood-qamar/)
 - Portfolio: [https://nyx-portfolio.web.app/](https://nyx-portfolio.web.app/)
 
